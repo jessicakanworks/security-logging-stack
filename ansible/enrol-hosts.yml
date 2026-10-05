@@ -1,0 +1,14 @@
+---
+- name: Install and register Wazuh agent
+  hosts: all
+  become: true
+  vars: {wazuh_manager: 10.10.9.20, wazuh_version: "4.9.2"}
+  tasks:
+    - name: Repo key and repo (Debian)
+      when: ansible_os_family == "Debian"
+      block:
+        - ansible.builtin.apt_key: {url: https://packages.wazuh.com/key/GPG-KEY-WAZUH, state: present}
+        - ansible.builtin.apt_repository: {repo: "deb https://packages.wazuh.com/4.x/apt/ stable main", state: present}
+    - ansible.builtin.package: {name: "wazuh-agent={{ wazuh_version }}-1", state: present}
+      environment: {WAZUH_MANAGER: "{{ wazuh_manager }}", WAZUH_AGENT_GROUP: "{{ group_names | first }}"}
+    - ansible.builtin.systemd: {name: wazuh-agent, state: started, enabled: true, daemon_reload: true}

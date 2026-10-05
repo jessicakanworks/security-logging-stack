@@ -1,0 +1,24 @@
+---
+- name: Point Cisco devices at the collector
+  hosts: cisco
+  gather_facts: false
+  connection: network_cli
+  tasks:
+    - cisco.ios.ios_logging_global:
+        config:
+          hosts: [{hostname: 10.10.9.20, transport: {udp: {port: 514}}}]
+          trap: informational
+          source_interface: Loopback0
+        state: merged
+    - cisco.ios.ios_config:
+        lines: ["ip flow-export destination 10.10.9.20 2055", "ip flow-export version 9"]
+
+- name: Point Junos devices at the collector
+  hosts: junos
+  gather_facts: false
+  connection: netconf
+  tasks:
+    - junipernetworks.junos.junos_config:
+        lines:
+          - set system syslog host 10.10.9.20 any notice
+          - set system syslog host 10.10.9.20 interactive-commands any

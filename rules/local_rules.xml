@@ -1,0 +1,26 @@
+<group name="local,">
+  <!-- Burst of SSH failures from one source: 10 in 60 s -->
+  <rule id="100010" level="10" frequency="10" timeframe="60">
+    <if_matched_sid>5716</if_matched_sid>
+    <same_source_ip />
+    <description>SSH brute-force burst from $(srcip)</description>
+    <mitre><id>T1110</id></mitre>
+  </rule>
+  <!-- sudo to root shell by a non-admin account -->
+  <rule id="100020" level="12">
+    <if_sid>5402</if_sid>
+    <match>COMMAND=/bin/bash|COMMAND=/bin/sh</match>
+    <description>Interactive root shell via sudo by $(dstuser)</description>
+  </rule>
+  <!-- Cisco: configuration changed -->
+  <rule id="100030" level="8">
+    <decoded_as>cisco-ios</decoded_as>
+    <match>%SYS-5-CONFIG_I</match>
+    <description>Network device configuration changed on $(hostname)</description>
+  </rule>
+  <!-- Junos: commit -->
+  <rule id="100031" level="8">
+    <match>UI_COMMIT:</match>
+    <description>Junos configuration committed</description>
+  </rule>
+</group>
